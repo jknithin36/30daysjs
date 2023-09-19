@@ -177,19 +177,3 @@ const addTaxRate = function (rate) {
 const addVatTax = addTaxRate(0.23);
 console.log(addTaxRate(0.1)(12));
 console.log(addVatTax(12));
-
-//Immediately Invoked Function Expressions
-//NORMAL ONE
-const runOnce = function () {
-  console.log(`This will never run once again`);
-};
-
-runOnce();
-//Immediately Invoked Function Expressions
-(function () {
-  console.log('hello this is a function');
-})();
-//Arrow function
-(() => {
-  console.log('hello Arrow');
-})();
