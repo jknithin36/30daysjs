@@ -60,7 +60,7 @@ const inputTransferAmount = document.querySelector('.form__input--amount');
 const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
-
+/////////////////////////////////////////////////////////////////
 const displayMovements = function (movements) {
   containerMovements.innerHTML = '';
   movements.forEach(function (mov, i) {
@@ -75,6 +75,28 @@ const displayMovements = function (movements) {
   });
 };
 displayMovements(account1.movements);
+////////////////////////////////////////////////////////////////////
+const calcDisplayBalance = function (movements) {
+  const balance = movements.reduce(function (acc, mov) {
+    return acc + mov;
+  }, 0);
+  labelBalance.textContent = `${balance} INR`;
+};
+
+calcDisplayBalance(account1.movements);
+////////////////////////////////////////////////////////////////////////
+const createUsernames = function (acc) {
+  acc.forEach(function (acc) {
+    acc.userName = acc.owner
+      .toLocaleLowerCase()
+      .split(' ')
+      .map(function (word) {
+        return word[0];
+      })
+      .join('');
+  });
+};
+createUsernames(accounts);
 
 // MAP METHOD
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
@@ -106,3 +128,59 @@ const movementsDescription = movements.map(
   // }
 );
 console.log(movementsDescription);
+
+// FILTER METHOD
+
+const deposits = movements.filter(function (mov) {
+  return mov > 0;
+});
+console.log(movements);
+console.log(deposits);
+
+const depositsFor = [];
+
+for (const mov of movements) {
+  mov > 0 ? depositsFor.push(mov) : null;
+}
+console.log(depositsFor);
+
+const withdrawals = movements.filter(function (mov) {
+  return mov < 0;
+});
+console.log(withdrawals);
+
+// REDUCE METHOD
+// accumulator currentValue index array
+const balance = movements.reduce(function (acc, cur, i, arr) {
+  console.log(`Iteration Number ${i} : ${acc}`);
+  return acc + cur;
+}, 0);
+// 0 is accumulator value
+console.log(balance);
+
+let balance2 = 0;
+for (const mov of movements) {
+  balance2 += mov;
+}
+console.log(balance2);
+// MAXIMUM VALUE
+const maxValue = movements.reduce(function (acc, mov) {
+  if (acc > mov) {
+    return acc;
+  } else {
+    return mov;
+  }
+  mov[0];
+});
+
+console.log(maxValue);
+
+//
+const totalDeosits = movements
+  .filter(mov => mov < 0)
+  .map((mov, i, arr) => {
+    console.log(arr);
+    return mov * eurToUsd;
+  })
+  .reduce((acc, cur) => acc + cur, 0);
+console.log(totalDeosits);
