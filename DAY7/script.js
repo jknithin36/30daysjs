@@ -6,28 +6,28 @@
 
 // Data
 const account1 = {
-  owner: 'sea Blue',
+  owner: 'Nobi Notitha',
   movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
   interestRate: 1.2, // %
   pin: 1111,
 };
 
 const account2 = {
-  owner: 'Nobitha',
+  owner: 'Naruto Uzumaki',
   movements: [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
   interestRate: 1.5,
   pin: 2222,
 };
 
 const account3 = {
-  owner: 'Gwen',
+  owner: 'Nithin Kumar',
   movements: [200, -200, 340, -300, -20, 50, 400, -460],
   interestRate: 0.7,
   pin: 3333,
 };
 
 const account4 = {
-  owner: 'Suneo',
+  owner: 'Shiva Prasad',
   movements: [430, 1000, 700, 50, 90],
   interestRate: 1,
   pin: 4444,
@@ -61,29 +61,62 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 /////////////////////////////////////////////////////////////////
-const displayMovements = function (movements) {
+const displayMovements = function (mov) {
   containerMovements.innerHTML = '';
-  movements.forEach(function (mov, i) {
+  mov.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
     const html = `
     <div class="movements__row">
           <div class="movements__type movements__type--${type}">${i + 1}
           ${type}</div>
-          <div class="movements__value">${mov}</div>
+          <div class="movements__value">${mov}₹</div>
     </div>`;
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
 };
-displayMovements(account1.movements);
 ////////////////////////////////////////////////////////////////////
-const calcDisplayBalance = function (movements) {
-  const balance = movements.reduce(function (acc, mov) {
+const calcDisplayBalance = function (acc) {
+  acc.balance = acc.movements.reduce(function (acc, mov) {
     return acc + mov;
   }, 0);
-  labelBalance.textContent = `${balance} INR`;
+
+  labelBalance.textContent = `${acc.balance} ₹`;
+};
+////////////////////////////////////////////////////////////////////
+const calcDisplaySummary = function (acc) {
+  const incomes = acc.movements
+    .filter(function (mov) {
+      return mov > 0;
+    })
+    .reduce(function (acc, mov) {
+      return acc + mov;
+    }, 0);
+  labelSumIn.textContent = `${incomes} ₹`;
+
+  const outcomes = acc.movements
+    .filter(function (mov) {
+      return mov < 0;
+    })
+    .reduce((acc, mov) => acc + mov, 0);
+  labelSumOut.textContent = `${Math.abs(outcomes)} ₹`;
+
+  const intrest = acc.movements
+    .filter(function (mov) {
+      return mov > 0;
+    })
+    .map(function (mov) {
+      return (mov * acc.interestRate) / 100;
+    })
+    .filter(function (int, i, arr) {
+      console.log(arr);
+      return int >= 1;
+    })
+    .reduce(function (acc, int) {
+      return acc + int;
+    }, 0);
+  labelSumInterest.textContent = `${intrest} ₹`;
 };
 
-calcDisplayBalance(account1.movements);
 ////////////////////////////////////////////////////////////////////////
 const createUsernames = function (acc) {
   acc.forEach(function (acc) {
@@ -97,7 +130,89 @@ const createUsernames = function (acc) {
   });
 };
 createUsernames(accounts);
+console.log(createUsernames);
+//////////////////////////////////////////////////////////////////////
+const updateUI = function (acc) {
+  displayMovements(acc.movements);
+  calcDisplayBalance(acc);
+  calcDisplaySummary(acc);
+};
+/////////////////////////////////////////////////////////////////////////
+let currentAccount;
 
+btnLogin.addEventListener('click', function (e) {
+  // prevent form from submitting
+  e.preventDefault();
+  currentAccount = accounts.find(function (acc) {
+    return acc.userName === inputLoginUsername.value;
+  });
+
+  console.log(currentAccount);
+  //optional chaining
+
+  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+    // Display UI and message
+    labelWelcome.textContent = `Welcome back, ${
+      currentAccount.owner.split(' ')[0]
+    }`;
+    containerApp.style.visibility = 'visible';
+    containerApp.style.opacity = 100;
+
+    // DIAPLAY USER LOGS
+    updateUI(currentAccount);
+
+    // empty userLOGS FEILDS
+    inputLoginUsername.value = '';
+    inputLoginPin.value = '';
+    inputLoginPin.blur();
+  }
+});
+
+//////////////////////////////////////////////////////////////////////
+
+btnTransfer.addEventListener('click', function (e) {
+  e.preventDefault();
+  const amount = Number(inputTransferAmount.value);
+  const receiverAccount = accounts.find(function (acc) {
+    return acc.userName === inputTransferTo.value;
+  });
+
+  inputTransferAmount.value = inputTransferTo.value = '';
+  if (
+    amount > 0 &&
+    currentAccount.balance >= amount &&
+    receiverAccount?.userName !== currentAccount.userName
+  ) {
+    currentAccount.movements.push(-amount);
+    receiverAccount.movements.push(amount);
+    //updateUI
+    updateUI(currentAccount);
+  }
+});
+////////////////////////////////////////////////////////////////////
+btnClose.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  if (
+    inputCloseUsername.value === currentAccount.username &&
+    Number(inputClosePin.value) === currentAccount.pin
+  ) {
+    const index = accounts.findIndex(
+      acc => acc.username === currentAccount.username
+    );
+    console.log(index);
+    // .indexOf(23)
+
+    // Delete account
+    accounts.splice(index, 1);
+
+    // Hide UI
+    containerApp.style.visibility = 'hidden';
+    containerApp.style.opacity = 0;
+  }
+
+  inputCloseUsername.value = inputClosePin.value = '';
+});
 // MAP METHOD
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 const eurToUsd = 1.1;
@@ -184,3 +299,19 @@ const totalDeosits = movements
   })
   .reduce((acc, cur) => acc + cur, 0);
 console.log(totalDeosits);
+
+// FIND METHOD
+// returns the frist element of array which satisfies the condition
+const fristWithdrawal = movements.find(function (mov) {
+  return mov < 0;
+});
+console.log(movements);
+console.log(fristWithdrawal);
+console.log(accounts);
+const account = accounts.find(function (acc) {
+  return acc.owner === 'Nobitha';
+});
+
+console.log(account);
+
+// FIndINDEX METHOD
