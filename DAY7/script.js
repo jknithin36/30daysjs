@@ -61,9 +61,10 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 /////////////////////////////////////////////////////////////////
-const displayMovements = function (mov) {
+const displayMovements = function (mov, sort = false) {
   containerMovements.innerHTML = '';
-  mov.forEach(function (mov, i) {
+  const movs = sort ? mov.slice().sort((a, b) => a - b) : mov;
+  movs.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
     const html = `
     <div class="movements__row">
@@ -190,6 +191,28 @@ btnTransfer.addEventListener('click', function (e) {
   }
 });
 ////////////////////////////////////////////////////////////////////
+
+btnLoan.addEventListener('click', function (e) {
+  e.preventDefault();
+  const loan = Number(inputLoanAmount.value);
+
+  if (
+    loan > 0 &&
+    currentAccount.movements.some(function (mov) {
+      return mov >= loan * 0.1;
+    })
+  ) {
+    // add movement
+    currentAccount.movements.push(loan);
+
+    //update UI
+    updateUI(currentAccount);
+    // clear feilds
+    inputLoanAmount.value = '';
+  }
+});
+
+////////////////////////////////////////////////////////////////////
 btnClose.addEventListener('click', function (e) {
   e.preventDefault();
 
@@ -213,6 +236,16 @@ btnClose.addEventListener('click', function (e) {
 
   inputCloseUsername.value = inputClosePin.value = '';
 });
+
+////////////////////////////////////////////////////////////////////////
+let sorted = false;
+btnSort.addEventListener('click', function (e) {
+  e.preventDefault();
+  displayMovements(currentAccount.movements, !sorted);
+  sorted = !sorted;
+});
+
+///////////////////////////////////////////////////////////////////////////////
 // MAP METHOD
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 const eurToUsd = 1.1;
@@ -314,4 +347,116 @@ const account = accounts.find(function (acc) {
 
 console.log(account);
 
-// FIndINDEX METHOD
+// Some Method
+console.log(movements);
+// we use includes for quality
+console.log(movements.includes(-130));
+//some for condition
+console.log(movements.some(mov => mov === -130));
+const anyDeposits = movements.some(function (mov) {
+  return mov > 0;
+});
+console.log(anyDeposits);
+// EVERY Method
+// if every element passes the test then it gives true
+console.log(
+  movements.every(function (mov) {
+    return mov > 0;
+  })
+);
+console.log(
+  account4.movements.every(function (mov) {
+    return mov > 0;
+  })
+);
+// seperate call back
+const deposit = mov => mov > 0;
+console.log(movements.every(deposit));
+console.log(movements.filter(deposit));
+
+// flat Method
+// removes the nested and flattend the array
+//flat level goes only one level deep
+//but if we give value then it will do
+const arr = [[1, 2, 3], 4, 5, [7, 8, 9]];
+console.log(arr.flat());
+const arrDeep = [[[1, 2], 3], [4, [5, 6]], 7, 8];
+console.log(arrDeep.flat(2));
+// WITHOUT CHAINING
+const accountMovements = accounts.map(acc => acc.movements);
+console.log(accountMovements);
+const allMovements = accountMovements.flat();
+console.log(allMovements);
+const overallBalance = allMovements.reduce(function (acc, mov) {
+  return acc + mov;
+}, 0);
+console.log(overallBalance);
+//WITH CHAINING
+const overalBalance = accounts
+  .map(acc => acc.movements)
+  .flat()
+  .reduce(function (acc, mov) {
+    return acc + mov;
+  }, 0);
+console.log(overalBalance);
+// flatMap method
+// flat map only goes one level deeper
+const overalBalance2 = accounts
+  .flatMap(acc => acc.movements)
+  .reduce(function (acc, mov) {
+    return acc + mov;
+  }, 0);
+console.log(overalBalance2);
+
+// sort Method
+//it mutate the orginal array
+// Strings
+const owners = ['e', 'c', 'b', 'a', 'd'];
+console.log(owners.sort());
+//Numbers
+console.log(movements);
+//return <0, a,b
+//return >0,b,a
+console.log(
+  movements.sort(function (a, b) {
+    if (a > b) {
+      return 1;
+    } else if (b > a) {
+      return -1;
+    }
+  })
+);
+// improving code
+//ascending
+movements.sort((a, b) => a - b);
+console.log(movements);
+//desending
+movements.sort((a, b) => b - a);
+console.log(movements);
+
+//Creating and Filling Arrays
+const arrO = [1, 2, 3, 4, 5, 6, 7];
+console.log(new Array(1, 2, 3, 4, 5, 6, 7));
+const x = new Array(7);
+console.log(x);
+x.fill(1, 3, 5);
+x.fill(1);
+console.log(x);
+console.log(arrO);
+arrO.fill(23, 4, 6);
+console.log(arrO);
+
+// Array.from
+const c = Array.from({ length: 7 }, () => 1);
+console.log(c);
+
+const z = Array.from({ length: 7 }, (_, i) => i + 1);
+console.log(z);
+
+labelBalance.addEventListener('click', function () {
+  const movementsUI = Array.from(
+    document.querySelectorAll('.movements__value'),
+    el => Number(el.textContent.replace('₹', ''))
+  );
+  console.log(movementsUI);
+});
