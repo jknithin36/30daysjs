@@ -1,4 +1,4 @@
-import React, { createElement } from "react";
+import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 
@@ -75,15 +75,33 @@ function Header() {
 }
 
 function Menu() {
+  const pizzas = pizzaData;
+  // EVEN EMPTY ARRAY IS TRURTHY VALUE IN SHORT CIRCUTIng
+  // const pizzas = [];
+  const numPizzas = pizzas.length;
   return (
     <main className="menu">
       <h2>Our menu</h2>
+      {/* Conditional Rendering With && */}
+      {/* {numPizzas > 0 && (
+        <ul className="pizzas">
+          {pizzas.map((pizza) => (
+            <Pizza pizzaObj={pizza} key={pizza.name} />
+          ))}
+        </ul>
+      )} */}
+      {/* using ternary operator */}
+      {/* we can not use if else statement inside javascript block because it doesnot produces a value so we are using ternary operator */}
+      {numPizzas > 0 ? (
+        <ul className="pizzas">
+          {pizzas.map((pizza) => (
+            <Pizza pizzaObj={pizza} key={pizza.name} />
+          ))}
+        </ul>
+      ) : (
+        <p>we're are still working on Today's Menu please come back Later </p>
+      )}
 
-      <ul className="pizzas">
-        {pizzaData.map((pizza) => (
-          <Pizza pizzaObj={pizza} key={pizza.name} />
-        ))}
-      </ul>
       {/* <Pizza
         name="Pizza Spinaci"
         ingredients="Tomato, mozarella, ham, aragula, and burrata cheese"
@@ -111,6 +129,7 @@ function Menu() {
 // one way dataflow => parents to children ---- not from children to parent
 function Pizza(props) {
   // console.log(props);
+  if (props.pizzaObj.soldOut) return null;
   return (
     <li className="pizza">
       <img src={props.pizzaObj.photoName} alt="spinach" />
@@ -128,6 +147,7 @@ function Footer() {
   const hour = new Date().getHours();
   const openHour = 12;
   const closeHour = 22;
+  // {/* Conditional Rendering With && */}
   const isOpen = hour >= openHour && hour <= closeHour;
   console.log(isOpen);
 
@@ -139,9 +159,21 @@ function Footer() {
   console.log(hour);
   // Without jsx
   // return React.createElement("footer", null, "we are Currently open!");
+
+  // if (isOpen)
+  //   return <p>We're open until {closeHour}:00. Come Visit us order Online</p>;
   return (
     <footer className="footer">
-      {new Date().toLocaleTimeString()} .. We are Currently open..!
+      {/* {isOpen && (
+        <p>We're open until {closeHour}:00. Come Visit us order Online</p>
+      )} */}
+      {isOpen ? (
+        <p>We're open until {closeHour}:00. Come Visit us order Online</p>
+      ) : (
+        <p>
+          We are happy to welcome you between {openHour}:00 and {closeHour}:00.
+        </p>
+      )}
     </footer>
   );
 }
